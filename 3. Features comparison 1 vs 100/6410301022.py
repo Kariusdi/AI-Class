@@ -13,19 +13,21 @@ import matplotlib.pyplot as plt
 np.random.seed(1)
 # mean_A = [3, 0]
 # covariance_A = np.array([[0.10, 0.00], [0.00, 0.75]])
+
+# B-100 features
 mean_A = np.arange(1, 101) * 0
 mean_A[0] = 3
 covariance_A = np.eye(100, 100, dtype = int) * 0.75
-covariance_A[0] = 0.10
-
+covariance_A[0][0] = 0.10
 num_sample_classA = 250
 
 # mean_B = [6, 0]
 # covariance_B = np.array([[0.75, 0.00], [0.00, 0.75]])
+
+# A-100 features
 mean_B = np.arange(1, 101) * 0
 mean_B[0] = 6
 covariance_B = np.eye(100, 100, dtype = int) * 0.75
-
 num_sample_classB = 250
 
 # Step 1: Generate data

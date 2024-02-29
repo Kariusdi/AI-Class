@@ -35,16 +35,21 @@ def BayesRule(Red_Box, Blue_Box):
     # Conditional Probability 
     # P(X|Y) => X means oranges, Y means Red Box
     prob_oranges_Br = Red_Box["oranges"] / (Red_Box["apples"] + Red_Box["oranges"])
+
     # P(X|Y) => X means oranges, Y means Blue Box
     prob_oranges_Bb = Blue_Box["oranges"] / (Blue_Box["apples"] + Blue_Box["oranges"])
+
     # P(X|Y) => X means apples, Y means Red Box
     prob_apples_Br = Red_Box["apples"] / (Red_Box["apples"] + Red_Box["oranges"])
+
     # P(X|Y) => X means apples, Y means Blue Box
     prob_apples_Bb = Blue_Box["apples"] / (Blue_Box["apples"] + Blue_Box["oranges"])
+
 
     # Joint Probability of orange and apple
     pxy_joint_oranges_Br = prob_oranges_Br * Red_Box["prob"]
     pxy_joint_oranges_Bb = prob_oranges_Bb * Blue_Box["prob"]
+    
     pxy_joint_apples_Br = prob_apples_Br * Red_Box["prob"]
     pxy_joint_apples_Bb = prob_apples_Bb * Blue_Box["prob"]
 

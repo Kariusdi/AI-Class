@@ -45,6 +45,3 @@ for _ in range(2000):
 print(len(weights))
 for w in range(len(weights)):
     print('feature {} = {}'.format(w+1, np.mean(weights[w])))
-
-
-
