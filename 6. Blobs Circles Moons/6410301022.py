@@ -5,6 +5,12 @@ Name        : Chonakan Chumtap
 Student ID  : 6410301022
 '''
 
+'''
+test_size           = จำนวนข้อมูลที่จะเอามา test
+validation_split    = 
+batch_size          = จำนวนการแบ่งข้อมูลเวลาเอาไป train
+'''
+
 class Classifying:
 
     def __init__(self, data_pattern):

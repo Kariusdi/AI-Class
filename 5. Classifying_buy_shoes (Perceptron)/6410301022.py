@@ -28,16 +28,16 @@ x = np.array( [ [1,1,1,0,1,1,0],
 y = np.array([[0],[0],[1],[0],[1],[0],[1],[0],[0],[1]])
 
 weights = np.ones(x.shape).transpose()
-lr = 0.01
+lr = 0.01 # learning rate
 
 for _ in range(2000):
     for idx, x_i in enumerate(x):
-        # Forward
+        # Forward (Forward propergation)
         linear_output = np.matmul(x_i, weights)
         activation_func = sigmoid(linear_output)
         # ----------------------------------------------------
-        # Update weight
-        del_w = (2/len(x)) * np.matmul(activation_func - y, x)
+        # Update weight (Back propergation)
+        del_w = (2/len(x)) * np.matmul((activation_func - y) * linear_output * (1 - linear_output), x)
         weights = weights - (lr * del_w.transpose())
         
         error = sum(abs(activation_func - y))

@@ -4,118 +4,46 @@ Date        : 12 Feb 2024
 Name        : Chonakan Chumtap 
 Student ID  : 6410301022
 '''
-
+import pandas as pd
+import time
+import numpy as np
+import matplotlib.pyplot as plt
 from sklearn import metrics
-
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from keras import Sequential
+from keras import layers
 
 class Classifying:
 
-    def __init__(self, data_pattern):
-        self.data_pattern = data_pattern
-        
-    def generateData(self):
-        df_data = pd.DataFrame()
-        if self.data_pattern=='blobs':
-            X_train, y_train = make_blobs(n_samples=100,
-                                n_features=2,
-                                centers=2,
-                                cluster_std=0.2,
-                                center_box=(0,5))
-        elif self.data_pattern=='circles':
-            X_train, y_train = make_circles(n_samples=100,
-                                noise=0.1,
-                                factor=0.2)
-        elif self.data_pattern=='moons':
-            X_train, y_train = make_moons(n_samples=100,
-                                noise=.05)
-        df_data['x'] = X_train[:,0]
-        df_data['y'] = X_train[:,1]
-        df_data['cluster'] = y_train
-        return df_data
+    def __init__(self, data):
+        self.data = data
     
     def preparing_data(self, dat):
         ss = StandardScaler()
         feature_ss = ss.fit_transform(dat)
         return feature_ss
     
-    def buildModel(self):
-
-        if self.data_pattern == 'blobs':
-            model = Sequential([
-                layers.Dense(32, activation="relu", input_shape=(2,)),
-                layers.Dense(1, activation="sigmoid")
-            ])
-        elif self.data_pattern == 'circles':
-            model = Sequential([
-                layers.Dense(64, activation="relu", input_shape=(2,)),
-                layers.Dense(32, activation="relu"),
-                layers.Dense(16, activation="relu"),
-                layers.Dense(8, activation="relu"),
-                layers.Dense(1, activation="sigmoid")
-            ])
-        elif self.data_pattern == 'moons':
-            model = Sequential([
-                layers.Dense(128, activation="relu", input_shape=(2,)),
-                layers.Dense(64, activation="relu"),
-                layers.Dense(32, activation="relu"),
-                layers.Dense(16, activation="relu"),
-                layers.Dense(1, activation="sigmoid")
-            ])
-        else :
-            model = Sequential([
-                layers.Dense(8, activation="relu", input_shape=(3,)),
-                layers.Dense(4, activation="relu"),
-                layers.Dense(1, activation="sigmoid")
-            ])
-
+    def buildModel(self, shape):
+        model = Sequential([
+            layers.Dense(8, activation="relu", input_shape=(shape,)),
+            layers.Dense(4, activation="relu"),
+            layers.Dense(1, activation="sigmoid")
+        ])
         return model
 
     def trainingModel(self, model, dataX, dataY):
+        model.compile(loss='mean_squared_error',
+                    optimizer='adam',
+                    metrics=['accuracy'])
         
-        if self.data_pattern == 'blobs':
-            model.compile(loss='binary_crossentropy',
-                        optimizer='adam',
-                        metrics=['accuracy'])
-            
-            X_train, X_test, Y_train, Y_test = train_test_split(dataX, dataY, test_size=0.25, random_state=1)
+        X_train, X_test, Y_train, Y_test = train_test_split(dataX, dataY, test_size=0.5, random_state=1)
 
-            start = time.time()
-            history = model.fit(X_train, Y_train, epochs=20, verbose=1, batch_size=25, validation_split=0.25)
-            end = time.time()
-            print("Training Time: {:.3f} secs".format(end-start))
-        elif self.data_pattern == 'circles':
-            model.compile(loss='mean_squared_error',
-                        optimizer='adam',
-                        metrics=['accuracy'])
-            
-            X_train, X_test, Y_train, Y_test = train_test_split(dataX, dataY, test_size=0.5, random_state=1)
-
-            start = time.time()
-            history = model.fit(X_train, Y_train, epochs=35, verbose=1, batch_size=10, validation_split=0.25)
-            end = time.time()
-            print("Training Time: {:.3f} secs".format(end-start))
-        elif self.data_pattern == 'moons':
-            model.compile(loss='binary_crossentropy',
-                        optimizer='adam',
-                        metrics=['accuracy'])
-            
-            X_train, X_test, Y_train, Y_test = train_test_split(dataX, dataY, test_size=0.25, random_state=1)
-
-            start = time.time()
-            history = model.fit(X_train, Y_train, epochs=60, verbose=1, batch_size=10, validation_split=0.25)
-            end = time.time()
-            print("Training Time: {:.3f} secs".format(end-start))
-        else :
-            model.compile(loss='mean_squared_error',
-                        optimizer='adam',
-                        metrics=['accuracy'])
-            
-            X_train, X_test, Y_train, Y_test = train_test_split(dataX, dataY, test_size=0.5, random_state=1)
-
-            start = time.time()
-            history = model.fit(X_train, Y_train, epochs=150, verbose=1, batch_size=25, validation_split=0.25)
-            end = time.time()
-            print("Training Time: {:.3f} secs".format(end-start))
+        start = time.time()
+        history = model.fit(X_train, Y_train, epochs=150, verbose=1, batch_size=25, validation_split=0.25)
+        end = time.time()
+        print("Training Time: {:.3f} secs".format(end-start))
 
         return model, X_test, Y_test
     
@@ -149,27 +77,24 @@ class Classifying:
 
 if __name__ == "__main__":
 
-    import pandas as pd
-    import time
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from matplotlib.colors import ListedColormap
-    from sklearn.datasets import make_blobs
-    from sklearn.datasets import make_circles
-    from sklearn.datasets import make_moons
-    from sklearn.metrics import confusion_matrix, roc_curve, auc
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.model_selection import train_test_split
-    from keras import Sequential
-    from keras import layers
-
     url = "titanic.csv"
     data = pd.read_csv(url)
 
-    titanic = Classifying('none')
+    titanic = Classifying(data)
 
     # 1). Prepare Data
-    data_X = data[['Fare', 'Age']].values
+    bi_sex = []
+    for i in data["Sex"].values:
+        if i == 'male':
+            bi_sex.append(1)
+        elif i == 'female':  
+            bi_sex.append(0)
+        else:
+            bi_sex.append(0)
+    
+    data['Bi sex'] = bi_sex
+
+    data_X = data[['Pclass', 'Fare', 'Bi sex']].values
     data_y = data['Survived'].values
     data_F3 = np.zeros((len(data_X),), dtype=int)
 
@@ -184,7 +109,7 @@ if __name__ == "__main__":
     y = data_y.reshape(-1, 1)
 
     # 2). Build Model
-    model_titanic = titanic.buildModel()
+    model_titanic = titanic.buildModel(X.shape[1])
 
     # 3). Complie and Train Model
     model, x_test, y_test = titanic.trainingModel(model_titanic, X, y)
