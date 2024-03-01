@@ -153,9 +153,10 @@ if __name__ == '__main__':
 
     msg = str(input("Enter the Message: "))
     notspam, spam = SpamOrNot(msg)
-    print(notspam, spam)
+    print("\nProb of NOT SPAM => ", notspam)
+    print("Prob of SPAM => ", spam)
 
     if notspam > spam:
-        print("It's probably a NOT SPAM message")
+        print("\nIt's probably a NOT SPAM message\n")
     else:
-        print("It's probably a SPAM message")
+        print("\nIt's probably a SPAM message\n")
