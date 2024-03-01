@@ -1,9 +1,3 @@
-'''
-Assignment  : Titanic Survival Challenge
-Date        : 12 Feb 2024
-Name        : Chonakan Chumtap 
-Student ID  : 6410301022
-'''
 from matplotlib.colors import ListedColormap
 import pandas as pd
 import time
@@ -18,8 +12,8 @@ from keras import layers
 
 class Classifying:
 
-    def __init__(self, data):
-        self.data = data
+    def __init__(self):
+        pass
     
     def preparing_data(self, dat):
         ss = StandardScaler()
@@ -28,21 +22,22 @@ class Classifying:
     
     def buildModel(self, shape):
         model = Sequential([
-            layers.Dense(8, activation="relu", input_shape=(shape,)),
+            layers.Dense(8, activation="tanh", input_shape=(shape,)),
+            layers.Dense(4, activation="relu"),
             layers.Dense(4, activation="relu"),
             layers.Dense(1, activation="sigmoid")
         ])
         return model
 
     def trainingModel(self, model, dataX, dataY):
-        model.compile(loss='mean_squared_error',
+        model.compile(loss='binary_crossentropy',
                     optimizer='adam',
                     metrics=['accuracy'])
         
         X_train, X_test, Y_train, Y_test = train_test_split(dataX, dataY, test_size=0.5, random_state=1)
 
         start = time.time()
-        history = model.fit(X_train, Y_train, epochs=150, verbose=1, batch_size=25, validation_split=0.25)
+        history = model.fit(X_train, Y_train, epochs=70, verbose=1, batch_size=25, validation_split=0.25)
         end = time.time()
         print("Training Time: {:.3f} secs".format(end-start))
 
@@ -76,59 +71,45 @@ class Classifying:
         plt.ylabel('Feature 2')
         plt.show()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
-    url = "titanic.csv"
-    data = pd.read_csv(url)
+    # 0). Genarate Data Set
+    np.random.seed(0)
 
-    titanic = Classifying(data)
+    mean1_1 = [2, 2]
+    mean1_2 = [8, 8]
+    mean2_1 = [5, 5]
+    mean2_2 = [11, 11]
 
+    cov1 = np.array([[1, 0.5], [0.5, 1]])
+    cov2 = np.array([[3, -2.5], [-2.5, 3]])
+
+    sample1_1 = np.random.multivariate_normal(mean1_1, cov1, size=100)
+    sample1_2 = np.random.multivariate_normal(mean1_2, cov1, size=100)
+    sample2_1 = np.random.multivariate_normal(mean2_1, cov2, size=100)
+    sample2_2 = np.random.multivariate_normal(mean2_2, cov2, size=100)
+
+    sample1 = np.concatenate((sample1_1, sample1_2), axis=0)
+    sample2 = np.concatenate((sample2_1, sample2_2), axis=0)
+
+    x = np.concatenate((sample1, sample2), axis=0)
+
+    classes = Classifying()
+    
     # 1). Prepare Data
-    bi_sex = []
-    for i in data["Sex"].values:
-        if i == 'male':
-            bi_sex.append(1)
-        elif i == 'female':  
-            bi_sex.append(0)
-        else:
-            bi_sex.append(0)
-    
-    data['Bi sex'] = bi_sex
+    X = classes.preparing_data(x)
+    y = np.concatenate((np.zeros(200), np.ones(200)))
 
-    data_X = data[['Pclass', 'Fare', 'Bi sex']].values
-    data_y = data['Survived'].values
-    data_F3 = np.zeros((len(data_X),), dtype=int)
-
-    for i in range(len(data_X)):
-        if np.isnan(data_X[i]).any():
-            data_F3[i] = 1
-    
-    data_X[np.isnan(data_X)] = np.nanmedian(data_X)
-
-    data_X_with_F3 = np.column_stack((data_X, data_F3))
-
-    X = titanic.preparing_data(data_X)
-    y = data_y.reshape(-1, 1)
-
-    # 2). Build Model
-    model_titanic = titanic.buildModel(X.shape[1])
+     # 2). Build Model
+    model_2classes = classes.buildModel(X.shape[1])
 
     # 3). Complie and Train Model
-    model, x_test, y_test = titanic.trainingModel(model_titanic, X, y)
+    model, x_test, y_test = classes.trainingModel(model_2classes, X, y)
 
     # 4). Evaluation and Testing Model
-    score = titanic.testModel(model, x_test, y_test)
+    score = classes.testModel(model, x_test, y_test)
     print("Loss: ", score[0])
     print("Accuracy: ", score[1])
 
-    y_pred_prob = model.predict(x_test)
-    y_pred = np.where(y_pred_prob>0.5, 1, 0)
-
-    fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_prob)
-    auc = metrics.roc_auc_score(y_test, y_pred_prob)
-
-    plt.plot(fpr, tpr, label="AUC="+str(auc))
-    plt.ylabel('True positive rate')
-    plt.xlabel('False positive rate')
-    plt.legend(loc=4)
-    plt.show()
+    # 5). Plotting decision boundary
+    classes.plot_decision_boundary(model, X, y)

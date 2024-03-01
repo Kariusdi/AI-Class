@@ -32,6 +32,7 @@ class Classifying:
             X_train, y_train = make_moons(n_samples=100,
                                 noise=.05)
         df_data['x'] = X_train[:,0]
+        print(df_data['x'])
         df_data['y'] = X_train[:,1]
         df_data['cluster'] = y_train
         return df_data
